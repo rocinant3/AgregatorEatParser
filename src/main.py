@@ -22,8 +22,8 @@ parser = AgregatorEatParser(
 )
 
 if __name__ == "__main__":
+    loop = aio.get_event_loop()
     try:
-        loop = aio.get_event_loop()
         loop.run_until_complete(parser.start())
     except Exception:
         try:

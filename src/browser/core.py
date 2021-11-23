@@ -1,5 +1,6 @@
 import asyncio
 import typing as t
+import platform
 
 from pyppeteer import launch
 from pyppeteer.element_handle import ElementHandle
@@ -20,6 +21,10 @@ class Browser:
             "defaultViewport": None,
             'args': ['--no-sandbox']
         }
+
+        if platform.system() == "Windows":
+            executable_path = "C:\Program Files\Google\Chrome\Application\chrome.exe"
+            params["executablePath"] = executable_path
 
         if ws_endpoint:
             params["browserWSEndpoint"] = ws_endpoint
