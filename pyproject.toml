@@ -8,6 +8,7 @@ authors = ["roci <you@example.com>"]
 python = "^3.8"
 pyppeteer = "^0.2.6"
 python-decouple = "^3.5"
+pywinauto = "^0.6.8"
 
 [tool.poetry.dev-dependencies]
 ipython = "^7.29.0"
