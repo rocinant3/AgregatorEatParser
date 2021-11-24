@@ -6,6 +6,7 @@ from pyppeteer import launch
 from pyppeteer.element_handle import ElementHandle
 from pyppeteer.browser import Browser as Driver
 from pyppeteer import connect
+from pyppeteer.launcher import executablePath
 from pyppeteer.page import Page
 
 
@@ -18,13 +19,18 @@ class Browser:
             "autoClose": False,
             "headless": False,
             "ignoreHTTPSErrors": True,
+            "ignoreDefaultArgs": ["--disable-extensions", "--enable-automation"],
+            
             "defaultViewport": None,
-            'args': ['--no-sandbox']
+            'args': [
+                '--enable-automation', '--enable-remote-extensions',
+                '--no-sandbox']
         }
 
-        if platform.system() == "Windows":
-            executable_path = "C:\Program Files\Google\Chrome\Application\chrome.exe"
-            params["executablePath"] = executable_path
+        # if platform.system() == "Windows":
+
+        #     executable_path = r"C:\Users\W7\Desktop\chrome-win32\chrome.exe"
+        #     params["executablePath"] = executable_path
 
         if ws_endpoint:
             params["browserWSEndpoint"] = ws_endpoint
@@ -130,6 +136,7 @@ class Browser:
 
     async def stop(self):
         await self.driver.close()
+
 
 
 HandledType = t.Union[Page, ElementHandle]

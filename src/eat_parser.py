@@ -19,7 +19,8 @@ class AgregatorEatParser:
         inn: str, 
         price: str,
         cert_name: str,
-        pin_code: str
+        pin_code: str,
+        keywoard: str
     ):
         self.login = login
         self.password = password
@@ -27,7 +28,20 @@ class AgregatorEatParser:
         self.price = price
         self.cert_name = cert_name
         self.pin_code = pin_code
+        self.keywoard = keywoard
         self.browser = Browser()
+
+    
+    async def load_crypto_pro_extension(self):
+        page = await self.browser.new_page(
+            "https://chrome.google.com/webstore/detail/cryptopro-extension-for-c/iifchhfnnmpdbibifmljnfjhpififfog?hl=ru"
+        )
+        await self.browser.wait(2)
+        install_btn =  await self.browser.get_elements_by_xpath(page, "//div[contains(text(),'Установить')]")
+        await self.browser.click_on(page, install_btn[0])
+        while not page.isClosed():
+            await self.browser.wait(1)
+        
 
     async def auth(self, page: Page):
         await self.browser.go_to(page, 'https://agregatoreat.ru/')
@@ -51,9 +65,11 @@ class AgregatorEatParser:
         await self.browser.go_to(page, 'https://agregatoreat.ru/purchases/new')
         filter_sidebar = await self.browser.wait_element(page, '#filter_sidebar')
         inn_input = await self.browser.wait_element(page, '#filterField-13-autocomplete')
+        keywoard_input = await self.browser.wait_element(page, "#filterField-1-input")
         apply_filter_btn = await self.browser.get_element(filter_sidebar, '#applyFilterButton')
 
         await self.browser.send_text(page, inn_input, self.inn)
+        await self.browser.send_text(page, keywoard_input, self.keywoard)
 
         purchases_list = await self.browser.wait_element(page, 'app-purchase-registry')
         is_not_found = True
@@ -71,10 +87,13 @@ class AgregatorEatParser:
             await find_purchase_items()
 
         purchase_items = await self.browser.get_elements(purchases_list, 'app-purchase-card')
-        purchase_item = purchase_items[0]
-        approve_purchase_btn = await self.browser.get_element(purchase_item, '#applicationSendButton')
-        await self.browser.click_on(page, approve_purchase_btn)
-        await self.make_purchase(page)
+        for purchase_item in purchase_items:
+            approve_purchase_btn = await self.browser.get_element(purchase_item, '#applicationSendButton')
+            if not approve_purchase_btn:
+                continue
+            await self.browser.click_on(page, approve_purchase_btn)
+            await self.make_purchase(page)
+            break
 
     async def make_purchase(self, page: Page):
         main_container = await self.browser.wait_element(page, 'app-purchase-application')
@@ -109,22 +128,24 @@ class AgregatorEatParser:
         dynamic_dialog = await self.browser.wait_element(page, 'p-dynamicdialog')
         sign_button = await self.browser.wait_element(page, '#signButton')
         await self.browser.click_on(page, sign_button)
-        await self.browser.wait(2)
         crypto_win = CryptoWin()
         try:
             crypto_win.approve_access()
         except Exception:
-            await self.browser.wait(2)
+            await self.browser.wait(2)     
             crypto_win.approve_access()
+
 
         cert_modal = await self.browser.wait_element(
             page, 
-            '.cert-modal.ui-dialog.ui-dynamicdialog.ui-widget.ui-widget-content.ui-corner-all.ui-shadow.ng-star-inserted'
+            'p-dynamicdialog'
         )
 
-        certs = await self.browser.get_elements(page, 'span.fullname')
+        await self.browser.wait(1)
+        certs = await self.browser.get_elements(cert_modal, '.cert-form__row')
         for cert in certs:
-            cert_name = await self.browser.get_text(cert)
+            cert_name = await self.browser.get_element(cert, ".cert-form__name")
+            cert_name = await self.browser.get_text(cert_name)
             if self.cert_name.strip().lower() == cert_name.strip().lower():
                 await self.browser.click_on(page, cert)
                 break
@@ -140,6 +161,7 @@ class AgregatorEatParser:
 
     async def start(self):
         await self.browser.start()
+        await self.load_crypto_pro_extension()
         page = await self.browser.new_page()
         await self.auth(page)
         await self.monitor_order(page)

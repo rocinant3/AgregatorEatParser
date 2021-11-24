@@ -11,6 +11,7 @@ inn = config("INN")
 price = config("PRICE")
 pin_code = config("PIN_CODE")
 cert_name = config("CERT_NAME")
+keywoard = config("KEYWOARD")
 
 parser = AgregatorEatParser(
     login=login,
@@ -18,14 +19,16 @@ parser = AgregatorEatParser(
     inn=inn,
     price=price,
     pin_code=pin_code,
-    cert_name=cert_name
+    cert_name=cert_name,
+    keywoard=keywoard
 )
 
 if __name__ == "__main__":
     loop = aio.get_event_loop()
     try:
         loop.run_until_complete(parser.start())
-    except Exception:
+    except Exception as e:
+        print(e)
         try:
             loop.run_until_complete(parser.browser.stop())
         except BrowserError:
