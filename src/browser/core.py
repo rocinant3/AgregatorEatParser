@@ -23,8 +23,7 @@ class Browser:
             
             "defaultViewport": None,
             'args': [
-                '--enable-automation', '--enable-remote-extensions',
-                '--no-sandbox']
+                '--enable-automation', '--enable-remote-extensions']
         }
 
         # if platform.system() == "Windows":

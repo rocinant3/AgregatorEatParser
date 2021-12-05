@@ -3,6 +3,7 @@ import asyncio as aio
 from decouple import config
 from pyppeteer.errors import BrowserError
 
+
 from eat_parser import AgregatorEatParser
 
 login = config("LOGIN")

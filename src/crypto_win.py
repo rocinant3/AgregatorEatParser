@@ -6,13 +6,13 @@ class CryptoWin:
 
     @staticmethod
     def approve_access():
-        print('a')
+
         app = application.Application(backend="uia").connect(title="Подтверждение доступа", timeout=10)
-        print('b')
+    
         confirmWin = app.window(title_re=u'Подтверждение доступа')
-        print('c')
+
         if confirmWin.exists(timeout=10, retry_interval=1):
-            print('e')
+        
             confirmWin.set_focus()
             yesBtn = confirmWin[u'&Да']
             yesBtn.click()
@@ -26,5 +26,5 @@ class CryptoWin:
         win = app.window(title_re=r'Аутентификация - КриптоПро CSP')
         win.print_control_identifiers()
         win.set_focus()
-        win.Edit.set_textc(code)
+        win.Edit.set_text(code)
         win.OK.click()
